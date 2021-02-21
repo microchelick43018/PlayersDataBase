@@ -87,16 +87,9 @@ namespace PlayersDataBase
             if (banStatus == true) { Console.Write("забанить:"); }
             else { Console.Write("разбанить: "); }
             int choice = MakeListChoice(players.Count);
-            if (banStatus == true) 
-            {
-                players[choice - 1].Block();
-                Console.WriteLine("Игрок забанен!"); 
-            }
-            else 
-            { 
-                players[choice - 1].UnBlock(); 
-                Console.WriteLine("Игрок разбанен!");
-            }
+            players[choice - 1].ChangeStatus(banStatus);
+            if (banStatus == true) { Console.WriteLine("Игрок забанен!"); }
+            else { Console.WriteLine("Игрок разбанен!"); }
         }
 
         static void DeletePlayer(List<Player> players)
@@ -150,14 +143,12 @@ namespace PlayersDataBase
 
         class Player
         {
-            private string _nickName;
-            private int _level;
             private bool _isBanned;
             private int _orderNumber;
             static private int _playersCount;
 
-            public string NickName { get => _nickName; private set => _nickName = value; }
-            public int Level { get => _level; private set => _level = value; }
+            public string NickName { get; private set; }
+            public int Level { get; private set; }
             public bool IsBanned { get => _isBanned; private set => _isBanned = value; }
             public int OrderNumber { get => _orderNumber; private set => _orderNumber = value; }
             public static int PlayersCount { get => _playersCount; private set => _playersCount = value; }
@@ -186,14 +177,9 @@ namespace PlayersDataBase
                 _orderNumber--;
             }
 
-            public void Block()
+            public void ChangeStatus(bool banStatus)
             {
-                _isBanned = true;
-            }
-
-            public void UnBlock()
-            {
-                _isBanned = false;
+                _isBanned = banStatus;
             }
 
             public void ShowInfo()
@@ -202,6 +188,7 @@ namespace PlayersDataBase
                 if (IsBanned == true) { Console.WriteLine("забанен"); }
                 else { Console.WriteLine("не забанен"); }
             }
+
         }
     }
 }
