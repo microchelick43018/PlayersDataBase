@@ -15,21 +15,10 @@ namespace PlayersDataBase
             return choice;
         }
 
-        static int MakeMenuChoice()
+        static int MakeChoice(int maxNumber = 5)
         {
             int choice = ReadInt();
-            while (choice > 5 || choice < 1)
-            {
-                Console.Write("Неверный ввод. Повторите попытку: ");
-                choice = ReadInt();
-            }
-            return choice;
-        }
-
-        static int MakeListChoice(int listCount)
-        {
-            int choice = ReadInt();
-            while (choice > listCount || choice < 1)
+            while (choice > maxNumber || choice < 1)
             {
                 Console.Write("Неверный ввод. Повторите попытку: ");
                 choice = ReadInt();
@@ -55,7 +44,7 @@ namespace PlayersDataBase
             while (exit == false)
             {
                 ShowMenu();
-                choice = MakeMenuChoice();
+                choice = MakeChoice();
                 switch (choice)
                 {
                     case 1:
@@ -125,7 +114,7 @@ namespace PlayersDataBase
             {
                 ShowPlayers();
                 Console.Write("Введите номер игрока, которого хотите забанить: ");
-                int choice = MakeListChoice(_players.Count);
+                int choice = MakeChoice(_players.Count);
                 _players[choice - 1].Block();
             }
 
@@ -133,7 +122,7 @@ namespace PlayersDataBase
             {
                 ShowPlayers();
                 Console.Write("Введите номер игрока, которого хотите разбанить: ");
-                int choice = MakeListChoice(_players.Count);
+                int choice = MakeChoice(_players.Count);
                 _players[choice - 1].UnBlock();
             }
 
@@ -141,12 +130,12 @@ namespace PlayersDataBase
             {
                 ShowPlayers();
                 Console.Write("Введите номер игрока, которого хотите удалить: ");
-                int choice = MakeListChoice(_players.Count);
+                int choice = MakeChoice(_players.Count);
                 for (int i = choice; i < _players.Count; i++)
                 {
                     _players[i].DecOrderNumber();
                 }
-                _players.RemoveAt(choice);
+                _players.RemoveAt(choice - 1);
             }
         }
 
