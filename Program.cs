@@ -18,7 +18,7 @@ namespace PlayersDataBase
         static int MakeMenuChoice()
         {
             int choice = ReadInt();
-            while (choice > 5 || choice < 0)
+            while (choice > 5 || choice < 1)
             {
                 Console.Write("Неверный ввод. Повторите попытку: ");
                 choice = ReadInt();
@@ -37,14 +37,6 @@ namespace PlayersDataBase
             return choice;
         }
 
-        static void ShowPlayers(List<Player> players)
-        {
-            foreach (var player in players)
-            {
-                player.ShowInfo();
-            }
-        }
-
         static void ShowMenu()
         {
             Console.WriteLine("Выберите одну из функций:");
@@ -55,59 +47,9 @@ namespace PlayersDataBase
             Console.WriteLine("5 - Выход.");
         }
 
-        static void AddPlayer(List<Player> players)
-        {
-            string nickName;
-            int level;
-            bool isBanned;
-            int orderNumber;
-
-            Console.WriteLine("Введите Никнейм игрока: ");
-            nickName = Console.ReadLine();
-            Console.WriteLine("Введите уровень игрока: ");
-            level = ReadInt();
-            Console.WriteLine("Забанен ли игрок? 1 - да, 2 - нет.");
-            int choice = ReadInt();
-            while (choice != 1 && choice != 2)
-            {
-                Console.WriteLine("Неверный ввод. Повторите попытку: ");
-                choice = ReadInt();
-            }
-            if (choice == 1) { isBanned = true; }
-            else { isBanned = false; }
-            Player player = new Player(nickName, level, isBanned);
-            players.Add(player);
-            Console.WriteLine("Игрок добавлен!");
-        }
-
-        static void ChangePlayerBanStatus(List<Player> players, bool banStatus)
-        {
-            ShowPlayers(players);
-            Console.Write("Введите номер игрока, которого хотите ");
-            if (banStatus == true) { Console.Write("забанить:"); }
-            else { Console.Write("разбанить: "); }
-            int choice = MakeListChoice(players.Count);
-            players[choice - 1].ChangeStatus(banStatus);
-            if (banStatus == true) { Console.WriteLine("Игрок забанен!"); }
-            else { Console.WriteLine("Игрок разбанен!"); }
-        }
-
-        static void DeletePlayer(List<Player> players)
-        {
-            ShowPlayers(players);
-            Console.Write("Введите номер игрока, которого хотите удалить: ");
-            int choice = MakeListChoice(players.Count);
-            for (int i = choice; i < players.Count; i++)
-            {
-                players[i].DecOrderNumber();
-            }
-            Player.DecCount();
-            players.RemoveAt(choice);
-        }
-
         static void Main(string[] args)
         {
-            var players = new List<Player>();
+            DataEditor dataEditor = new DataEditor();
             int choice;
             bool exit = false;
             while (exit == false)
@@ -117,16 +59,16 @@ namespace PlayersDataBase
                 switch (choice)
                 {
                     case 1:
-                        AddPlayer(players);
+                        dataEditor.AddPlayer();
                         break;
                     case 2:
-                        ChangePlayerBanStatus(players, true);
+                        dataEditor.BlockPlayer();
                         break;
                     case 3:
-                        ChangePlayerBanStatus(players, false);
+                        dataEditor.UnblockPlayer();
                         break;
                     case 4:
-                        DeletePlayer(players);
+                        dataEditor.DeletePlayer();
                         break;
                     case 5:
                         exit = true;
@@ -138,57 +80,118 @@ namespace PlayersDataBase
                 Console.ReadKey();
                 Console.Clear();
             }
+        }
 
+        class DataEditor
+        {
+            private List<Player> _players;
+
+            public DataEditor()
+            {
+                _players = new List<Player>();
+            }
+
+            public void ShowPlayers()
+            {
+                foreach (var player in _players)
+                {
+                    player.ShowInfo();
+                }
+            }
+
+            public void AddPlayer()
+            {
+                string nickName;
+                int level;
+                bool isBanned;
+                Console.WriteLine("Введите Никнейм игрока: ");
+                nickName = Console.ReadLine();
+                Console.WriteLine("Введите уровень игрока: ");
+                level = ReadInt();
+                Console.WriteLine("Забанен ли игрок? 1 - да, 2 - нет.");
+                int choice = ReadInt();
+                while (choice != 1 && choice != 2)
+                {
+                    Console.WriteLine("Неверный ввод. Повторите попытку: ");
+                    choice = ReadInt();
+                }
+                isBanned = choice == 1;
+                Player player = new Player(nickName, level, isBanned, _players.Count + 1);
+                _players.Add(player);
+                Console.WriteLine("Игрок добавлен!");                
+            }
+
+            public void BlockPlayer()
+            {
+                ShowPlayers();
+                Console.Write("Введите номер игрока, которого хотите забанить: ");
+                int choice = MakeListChoice(_players.Count);
+                _players[choice - 1].Block();
+            }
+
+            public void UnblockPlayer()
+            {
+                ShowPlayers();
+                Console.Write("Введите номер игрока, которого хотите разбанить: ");
+                int choice = MakeListChoice(_players.Count);
+                _players[choice - 1].UnBlock();
+            }
+
+            public void DeletePlayer()
+            {
+                ShowPlayers();
+                Console.Write("Введите номер игрока, которого хотите удалить: ");
+                int choice = MakeListChoice(_players.Count);
+                for (int i = choice; i < _players.Count; i++)
+                {
+                    _players[i].DecOrderNumber();
+                }
+                _players.RemoveAt(choice);
+            }
         }
 
         class Player
         {
-            private bool _isBanned;
-            private int _orderNumber;
-            static private int _playersCount;
-
             public string NickName { get; private set; }
             public int Level { get; private set; }
-            public bool IsBanned { get => _isBanned; private set => _isBanned = value; }
-            public int OrderNumber { get => _orderNumber; private set => _orderNumber = value; }
-            public static int PlayersCount { get => _playersCount; private set => _playersCount = value; }
+            public bool IsBanned { get; private set; }
+            public int OrderNumber { get; private set; }
 
-            static Player()
-            {
-                _playersCount = 0;
-            }
-
-            public Player(string nickName, int level, bool isBanned)
+            public Player(string nickName, int level, bool isBanned, int orderNumber)
             {
                 NickName = nickName;
                 Level = level;
                 IsBanned = isBanned;
-                _playersCount++;
-                OrderNumber = _playersCount;
-            }
-
-            public static void DecCount()
-            {
-                _playersCount--;
+                OrderNumber = orderNumber;
             }
 
             public void DecOrderNumber()
             {
-                _orderNumber--;
+                OrderNumber--;
+            }           
+
+            public void Block()
+            {
+                IsBanned = true;
             }
 
-            public void ChangeStatus(bool banStatus)
+            public void UnBlock()
             {
-                _isBanned = banStatus;
+                IsBanned = false;
             }
 
             public void ShowInfo()
             {
-                Console.Write($"Номер: {_orderNumber}, никнейм: {NickName}, уровень: {Level}, cтатус - ");
-                if (IsBanned == true) { Console.WriteLine("забанен"); }
-                else { Console.WriteLine("не забанен"); }
+                Console.Write($"Номер: {OrderNumber}, никнейм: {NickName}, уровень: {Level}, cтатус - ");
+                if (IsBanned == true)
+                {
+                    Console.WriteLine("забанен");
+                }
+                else
+                { 
+                    Console.WriteLine("не забанен"); 
+                }
             }
-
         }
     }
 }
