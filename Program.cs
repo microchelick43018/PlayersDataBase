@@ -82,9 +82,9 @@ namespace PlayersDataBase
 
             public void ShowPlayers()
             {
-                foreach (var player in _players)
+                for (int i = 0; i < _players.Count; i++)
                 {
-                    player.ShowInfo();
+                    _players[i].ShowInfo(i + 1);
                 }
             }
 
@@ -105,37 +105,55 @@ namespace PlayersDataBase
                     choice = ReadInt();
                 }
                 isBanned = choice == 1;
-                Player player = new Player(nickName, level, isBanned, _players.Count + 1);
+                Player player = new Player(nickName, level, isBanned);
                 _players.Add(player);
                 Console.WriteLine("Игрок добавлен!");                
             }
 
             public void BlockPlayer()
             {
-                ShowPlayers();
-                Console.Write("Введите номер игрока, которого хотите забанить: ");
-                int choice = MakeChoice(_players.Count);
-                _players[choice - 1].Block();
+                if (CountChecker() == true)
+                {
+                    ShowPlayers();
+                    Console.Write("Введите номер игрока, которого хотите забанить: ");
+                    int choice = MakeChoice(_players.Count);
+                    _players[choice - 1].Block();
+                }
             }
 
             public void UnblockPlayer()
             {
-                ShowPlayers();
-                Console.Write("Введите номер игрока, которого хотите разбанить: ");
-                int choice = MakeChoice(_players.Count);
-                _players[choice - 1].UnBlock();
+                if (CountChecker() == true)
+                {
+                    ShowPlayers();
+                    Console.Write("Введите номер игрока, которого хотите разбанить: ");
+                    int choice = MakeChoice(_players.Count);
+                    _players[choice - 1].UnBlock();
+                }
             }
 
             public void DeletePlayer()
             {
-                ShowPlayers();
-                Console.Write("Введите номер игрока, которого хотите удалить: ");
-                int choice = MakeChoice(_players.Count);
-                for (int i = choice; i < _players.Count; i++)
+                if (CountChecker() == true)
                 {
-                    _players[i].DecOrderNumber();
+                    ShowPlayers();
+                    Console.Write("Введите номер игрока, которого хотите удалить: ");
+                    int choice = MakeChoice(_players.Count);
+                    _players.RemoveAt(choice - 1);
                 }
-                _players.RemoveAt(choice - 1);
+            }
+
+            public bool CountChecker()
+            {
+                if (_players.Count == 0)
+                {
+                    Console.WriteLine("Листа не существует! Добавьте хотя бы одного игрока.");
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
             }
         }
 
@@ -144,20 +162,13 @@ namespace PlayersDataBase
             public string NickName { get; private set; }
             public int Level { get; private set; }
             public bool IsBanned { get; private set; }
-            public int OrderNumber { get; private set; }
 
-            public Player(string nickName, int level, bool isBanned, int orderNumber)
+            public Player(string nickName, int level, bool isBanned)
             {
                 NickName = nickName;
                 Level = level;
                 IsBanned = isBanned;
-                OrderNumber = orderNumber;
-            }
-
-            public void DecOrderNumber()
-            {
-                OrderNumber--;
-            }           
+            }       
 
             public void Block()
             {
@@ -169,9 +180,9 @@ namespace PlayersDataBase
                 IsBanned = false;
             }
 
-            public void ShowInfo()
+            public void ShowInfo(int orderNumber)
             {
-                Console.Write($"Номер: {OrderNumber}, никнейм: {NickName}, уровень: {Level}, cтатус - ");
+                Console.Write($"Номер: {orderNumber}, никнейм: {NickName}, уровень: {Level}, cтатус - ");
                 if (IsBanned == true)
                 {
                     Console.WriteLine("забанен");
