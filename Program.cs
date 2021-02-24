@@ -17,13 +17,12 @@ namespace PlayersDataBase
         static void Main(string[] args)
         {
             DataEditor dataEditor = new DataEditor();
-            InputChecker inputChecker = new InputChecker();
             int choice;
             bool exit = false;
             while (exit == false)
             {
                 ShowMenu();
-                choice = inputChecker.MakeChoice();
+                choice = InputChecker.MakeChoice();
                 switch (choice)
                 {
                     case 1:
@@ -53,7 +52,7 @@ namespace PlayersDataBase
 
     class InputChecker
     {
-        public int ReadInt()
+        public static int ReadInt()
         {
             bool isCorrected = int.TryParse(Console.ReadLine(), out int choice);
             while (isCorrected == false)
@@ -64,7 +63,7 @@ namespace PlayersDataBase
             return choice;
         }
 
-        public int MakeChoice(int maxNumber = 5)
+        public static int MakeChoice(int maxNumber = 5)
         {
             int choice = ReadInt();
             while (choice > maxNumber || choice < 1)
@@ -79,16 +78,10 @@ namespace PlayersDataBase
     class DataEditor
     {
         private List<Player> _players;
-        private static InputChecker _inputChecker;
 
         public DataEditor()
         {
             _players = new List<Player>();
-        }
-
-        static DataEditor()
-        {
-            _inputChecker = new InputChecker();
         }
 
         public void ShowPlayers()
@@ -107,13 +100,13 @@ namespace PlayersDataBase
             Console.WriteLine("Введите Никнейм игрока: ");
             nickName = Console.ReadLine();
             Console.WriteLine("Введите уровень игрока: ");
-            level = _inputChecker.ReadInt();
+            level = InputChecker.ReadInt();
             Console.WriteLine("Забанен ли игрок? 1 - да, 2 - нет.");
-            int choice = _inputChecker.ReadInt();
+            int choice = InputChecker.ReadInt();
             while (choice != 1 && choice != 2)
             {
                 Console.WriteLine("Неверный ввод. Повторите попытку: ");
-                choice = _inputChecker.ReadInt();
+                choice = InputChecker.ReadInt();
             }
             isBanned = choice == 1;
             Player player = new Player(nickName, level, isBanned);
@@ -127,7 +120,7 @@ namespace PlayersDataBase
             {
                 ShowPlayers();
                 Console.Write("Введите номер игрока, которого хотите забанить: ");
-                int choice = _inputChecker.MakeChoice(_players.Count);
+                int choice = InputChecker.MakeChoice(_players.Count);
                 _players[choice - 1].Block();
             }
         }
@@ -138,7 +131,7 @@ namespace PlayersDataBase
             {
                 ShowPlayers();
                 Console.Write("Введите номер игрока, которого хотите разбанить: ");
-                int choice = _inputChecker.MakeChoice(_players.Count);
+                int choice = InputChecker.MakeChoice(_players.Count);
                 _players[choice - 1].UnBlock();
             }
         }
@@ -149,7 +142,7 @@ namespace PlayersDataBase
             {
                 ShowPlayers();
                 Console.Write("Введите номер игрока, которого хотите удалить: ");
-                int choice = _inputChecker.MakeChoice(_players.Count);
+                int choice = InputChecker.MakeChoice(_players.Count);
                 _players.RemoveAt(choice - 1);
             }
         }
